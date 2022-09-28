@@ -82,14 +82,37 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
             itemDao.delete(item)
         }
     }
+
+    /**
+     * 更新商品参数
+     */
+    private fun getUpdateItemEntry(
+        itemId: Int, itemName: String, itemPrice: String, itemCount: String
+    ): Item {
+        return Item(
+            id = itemId,
+            itemName = itemName,
+            itemPrice = itemPrice.toDouble(),
+            quantityInStock = itemCount.toInt()
+        )
+    }
+
+    /**
+     * 更新商品
+     */
+    fun updateItem(
+        itemId: Int, itemName: String, itemPrice: String, itemCount: String
+    ) {
+        val updateItem = getUpdateItemEntry(itemId, itemName, itemPrice, itemCount)
+        updateItem(updateItem)
+    }
 }
 
 
 class InventoryViewModelFactory(private val itemDao: ItemDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(InventoryViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return InventoryViewModel(itemDao) as T
+            @Suppress("UNCHECKED_CAST") return InventoryViewModel(itemDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

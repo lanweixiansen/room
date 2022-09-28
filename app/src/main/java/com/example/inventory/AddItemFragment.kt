@@ -53,9 +53,7 @@ class AddItemFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddItemBinding.inflate(inflater, container, false)
         return binding.root
@@ -66,9 +64,8 @@ class AddItemFragment : Fragment() {
         val id = navigationArgs.itemId
         if (id > 0) {
             mViewModel.retrieveItem(id).observe(this.viewLifecycleOwner) {
-                binding.itemName.setText(it.itemName)
-                binding.itemPrice.setText(it.getFormattedPrice())
-                binding.itemCount.setText(it.quantityInStock.toString())
+                item = it
+                bind(item)
             }
         } else {
             binding.saveAction.setOnClickListener {
@@ -104,8 +101,8 @@ class AddItemFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         // Hide keyboard.
-        val inputMethodManager = requireActivity().getSystemService(INPUT_METHOD_SERVICE) as
-                InputMethodManager
+        val inputMethodManager =
+            requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)
         _binding = null
     }
@@ -116,6 +113,22 @@ class AddItemFragment : Fragment() {
             itemName.setText(item.itemName, TextView.BufferType.SPANNABLE)
             itemPrice.setText(price, TextView.BufferType.SPANNABLE)
             itemCount.setText(item.quantityInStock.toString(), TextView.BufferType.SPANNABLE)
+            saveAction.setOnClickListener {
+                updateItem()
+            }
+        }
+    }
+
+    private fun updateItem() {
+        if (isEntryValid()) {
+            mViewModel.updateItem(
+                this.navigationArgs.itemId,
+                this.binding.itemName.text.toString(),
+                this.binding.itemPrice.text.toString(),
+                this.binding.itemCount.text.toString()
+            )
+            val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
+            findNavController().navigate(action)
         }
     }
 }
